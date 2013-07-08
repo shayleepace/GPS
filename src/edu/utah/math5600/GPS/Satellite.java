@@ -7,14 +7,16 @@ import java.util.Scanner;
 
 public class Satellite {
 
-	private static Double[][] r3;
-	private static Double[][] x;
-	private static Data d = new Data();
+	private static double[][] r3;
+	private static double[][] x;
 	
 	public static void main(String[] args) {
+		//Get Data from data.dat
+		Data.getData();
+		
 		//Matrices
-		r3 = new Double[3][3];
-		x = new Double[3][1];
+		r3 = new double[3][3];
+		x = new double[3][1];
 		
 		//Variables for input data
 		double tv = 0.0, ad = 0.0, am = 0.0, as = 0.0, bd = 0.0, bm = 0.0, bs = 0.0, h = 0.0;
@@ -57,36 +59,36 @@ public class Satellite {
 		//Test 
 //		psi = getPsi(1, 40, 45, 55);
 //		lambda = getLambda(-1, 111, 50, 58);
-//		r3[0][0] = Math.cos((2*d.pi*tv)/d.s);
-//		r3[0][1] = -Math.sin((2*d.pi*tv)/d.s);
+//		r3[0][0] = Math.cos((2*Data.pi*tv)/Data.s);
+//		r3[0][1] = -Math.sin((2*Data.pi*tv)/Data.s);
 //		r3[0][2] = 0.0;
-//		r3[1][0] = Math.sin((2*d.pi*tv)/d.s);
-//		r3[1][1] = Math.cos((2*d.pi*tv)/d.s);
+//		r3[1][0] = Math.sin((2*Data.pi*tv)/Data.s);
+//		r3[1][1] = Math.cos((2*Data.pi*tv)/Data.s);
 //		r3[1][2] = 0.0;
 //		r3[2][0] = 0.0;
 //		r3[2][1] = 0.0;
 //		r3[2][2] = 1.0;
 //		
-//		x[0][0] = (d.r + 1372) * Math.cos(psi) * Math.cos(lambda);
-//		x[1][0] = (d.r + 1372) * Math.cos(psi) * Math.sin(lambda);
-//		x[2][0] = (d.r + 1372) * Math.sin(psi);
+//		x[0][0] = (Data.r + 1372) * Math.cos(psi) * Math.cos(lambda);
+//		x[1][0] = (Data.r + 1372) * Math.cos(psi) * Math.sin(lambda);
+//		x[2][0] = (Data.r + 1372) * Math.sin(psi);
 		
 		
 		
 		//Fill matrices
-		r3[0][0] = Math.cos((2*d.pi*tv)/d.s);
-		r3[0][1] = -Math.sin((2*d.pi*tv)/d.s);
+		r3[0][0] = Math.cos((2*Data.pi*tv)/Data.s);
+		r3[0][1] = -Math.sin((2*Data.pi*tv)/Data.s);
 		r3[0][2] = 0.0;
-		r3[1][0] = Math.sin((2*d.pi*tv)/d.s);
-		r3[1][1] = Math.cos((2*d.pi*tv)/d.s);
+		r3[1][0] = Math.sin((2*Data.pi*tv)/Data.s);
+		r3[1][1] = Math.cos((2*Data.pi*tv)/Data.s);
 		r3[1][2] = 0.0;
 		r3[2][0] = 0.0;
 		r3[2][1] = 0.0;
 		r3[2][2] = 1.0;
 		
-		x[0][0] = (d.r + h) * Math.cos(psi) * Math.cos(lambda);
-		x[1][0] = (d.r + h) * Math.cos(psi) * Math.sin(lambda);
-		x[2][0] = (d.r + h) * Math.sin(psi);
+		x[0][0] = (Data.r + h) * Math.cos(psi) * Math.cos(lambda);
+		x[1][0] = (Data.r + h) * Math.cos(psi) * Math.sin(lambda);
+		x[2][0] = (Data.r + h) * Math.sin(psi);
 		
 		
 		//testing matrices
@@ -115,18 +117,18 @@ public class Satellite {
 //		System.out.println(c[2][0]);
 		
 		
-		System.out.println("This should be u1 of satelite 15: " + d.u1[14]);
-		System.out.println("This should be R: " + d.r);
+		System.out.println("This should be u1 of satelite 15: " + Data.u1[14]);
+		System.out.println("This should be R: " + Data.r);
 
 	}
 	
 	
 	public static double getPsi(double ns, double ad, double am, double as) {
-		return 2 * d.pi * ns * ( (ad/360) + (am/21600) + (as/1296000) );
+		return 2 * Data.pi * ns * ( (ad/360) + (am/21600) + (as/1296000) );
 	}
 	
 	public static double getLambda(double ew, double bd, double bm, double bs) {
-		return 2 * d.pi * ew * ( (bd/360) + (bm/21600) + (bs/1296000) );
+		return 2 * Data.pi * ew * ( (bd/360) + (bm/21600) + (bs/1296000) );
 	}
 	
 	public static double[][] multMatrix(double[][] a, double[][] b) {

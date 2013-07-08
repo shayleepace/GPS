@@ -6,14 +6,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Data {
+	public static double pi, c, r, s;
+	public static double[] u1, u2, u3, v1, v2, v3, periodicity, altitude, phase;
 	
-	public double pi, c, r, s;
-	Double[] u1, u2, u3, v1, v2, v3, periodicity, altitude, phase;
-	
-	public Data() {
-		u1 = new Double[24]; u2 = new Double[24]; u3 = new Double[24];
-		v1 = new Double[24]; v2 = new Double[24]; v3 = new Double[24];
-		periodicity = new Double[24]; altitude = new Double[24]; phase = new Double[24];
+	public static void getData() {
+		u1 = new double[24]; u2 = new double[24]; u3 = new double[24];
+		v1 = new double[24]; v2 = new double[24]; v3 = new double[24];
+		periodicity = new double[24]; altitude = new double[24]; phase = new double[24];
 		
 		Scanner dataInput;
 		try {
