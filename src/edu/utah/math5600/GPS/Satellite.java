@@ -90,33 +90,7 @@ public class Satellite {
 		x[1][0] = (Data.r + h) * Math.cos(psi) * Math.sin(lambda);
 		x[2][0] = (Data.r + h) * Math.sin(psi);
 		
-		
-		//testing matrices
-//		double[][] a = new double[3][3];
-//		double[][] b = new double[3][1];
-//		
-//		a[0][0] = 1; 
-//		a[0][1] = 2;
-//		a[0][2] = 3;
-//		a[1][0] = 4;
-//		a[1][1] = 5;
-//		a[1][2] = 6;
-//		a[2][0] = 1;
-//		a[2][1] = 1;
-//		a[2][2] = 1;
-//		
-//		b[0][0] = 1;
-//		b[1][0] = 1;
-//		b[2][0] = 2;
-//		double[][] c = multMatrix(a,b);
-//		System.out.println("matrix: ");
-//		printMatrix(a);
 
-//		System.out.println(c[0][0]);
-//		System.out.println(c[1][0]);
-//		System.out.println(c[2][0]);
-		
-		
 		System.out.println("This should be u1 of satelite 15: " + Data.u1[14]);
 		System.out.println("This should be R: " + Data.r);
 
@@ -130,25 +104,4 @@ public class Satellite {
 	public static double getLambda(double ew, double bd, double bm, double bs) {
 		return 2 * Data.pi * ew * ( (bd/360) + (bm/21600) + (bs/1296000) );
 	}
-	
-	public static double[][] multMatrix(double[][] a, double[][] b) {
-		double[][] c = new double[a[0].length][b[1].length];
-	    for (int i = 0; i < a[0].length; i++)
-	    	for (int j = 0; j < b[1].length; j++)
-	    		for (int k = 0; k < a[1].length; k++)
-	    			c[i][j] += (a[i][k] * b[k][j]);
-	    System.out.println("size: " + c[0].length + " " + c[1].length);
-		return c;
-	}
-	
-	public static void printMatrix(double[][] matrix) {
-		System.out.println("size: " + matrix[0].length + " " + matrix[1].length);
-	    for (int i = 0; i < matrix[0].length; i++) {
-	    	for (int j = 0; j < matrix[1].length; j++) {
-	    		System.out.print(matrix[i][j] + " ");
-	    	}
-	    	System.out.print("\n");
-	    }
-	}
-
 }
