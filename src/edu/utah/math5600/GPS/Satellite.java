@@ -26,7 +26,7 @@ public class Satellite {
 		int ns = 0, ew = 0;
 		double psi, lambda;
 		double xv1 = 0.0, xv2 = 0.0, xv3 = 0.0;
-		double xs1 = 0.0, xs2 = 0.0, xs3 = 0.0;
+		double xs1 = 0.0, xs2 = 0.0, xs3 = 0.0, ts = 0.0;
 		
 		//Get vehicle input
 		Scanner vehicleInput;
@@ -111,6 +111,13 @@ public class Satellite {
 		xs2 = (Data.r+Data.altitude[0])*(Data.u2[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v2[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
 		xs3 = (Data.r+Data.altitude[0])*(Data.u3[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v3[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
 		
+		//Determines if the satellite is above the surface of the earth
+		double u = 0.0, l = 0.0;
+		u = xv1*xs1+xv2*xs2+xv3*xs3;
+		l = xv1*xv1+xv2*xv2+xv3*xv3;
+		while(u > l) {
+			System.out.println("Satellite 1 is above the surface");
+		}
 		
 		System.out.println("This should be u1 of satelite 15: " + Data.u1[14]);
 		System.out.println("This should be R: " + Data.r);
@@ -121,9 +128,14 @@ public class Satellite {
 		System.out.println("Y Position of first satellite: " + xs2);
 		System.out.println("Z Position of first satellite: " + xs3);
 		
+		//Computes ts
+		ts = tv-((xs1-xv1)*(xs1-xv1)+(xs2-xv2)*(xs2-xv2)+(xs3-xv3)*(xs3-xv3))/Data.c;
+		System.out.println("ts: " + ts);
+		
 		
 	}
 	
+
 	
 	public static double getPsi(double ns, double ad, double am, double as) {
 		return 2 * Data.pi * ns * ( (ad/360) + (am/21600) + (as/1296000) );
