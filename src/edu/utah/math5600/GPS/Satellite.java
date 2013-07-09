@@ -9,6 +9,8 @@ public class Satellite {
 
 	private static double[][] r3;
 	private static double[][] x;
+	private static double[][] xv;
+	
 	
 	public static void main(String[] args) {
 		//Get Data from data.dat
@@ -17,11 +19,13 @@ public class Satellite {
 		//Matrices
 		r3 = new double[3][3];
 		x = new double[3][1];
+		xv = new double[3][1];
 		
 		//Variables for input data
 		double tv = 0.0, ad = 0.0, am = 0.0, as = 0.0, bd = 0.0, bm = 0.0, bs = 0.0, h = 0.0;
 		int ns = 0, ew = 0;
 		double psi, lambda;
+		double xv1 = 0.0, xv2 = 0.0, xv3 = 0.0;
 		
 		//Get vehicle input
 		Scanner vehicleInput;
@@ -90,10 +94,23 @@ public class Satellite {
 		x[1][0] = (Data.r + h) * Math.cos(psi) * Math.sin(lambda);
 		x[2][0] = (Data.r + h) * Math.sin(psi);
 		
+		//Computes the position of the vehicle
+		xv1 = r3[0][0]*x[0][0]+r3[0][1]*x[1][0]+r3[0][2]*x[2][0];
+		xv2 = r3[1][0]*x[0][0]+r3[1][1]*x[1][0]+r3[1][2]*x[2][0];
+		xv3 = r3[2][0]*x[0][0]+r3[2][1]*x[1][0]+r3[2][2]*x[2][0];
+		
+		//Matrix position of vehicle
+		xv[0][0] = xv1;
+		xv[1][0] = xv2;
+		xv[2][0] = xv3;
+		
 
 		System.out.println("This should be u1 of satelite 15: " + Data.u1[14]);
 		System.out.println("This should be R: " + Data.r);
-
+		System.out.println("X position of vehicle:" + xv1);
+		System.out.println("Y position of vehicle:" + xv2);
+		System.out.println("Z position of vehicle:" + xv3);
+		
 	}
 	
 	
