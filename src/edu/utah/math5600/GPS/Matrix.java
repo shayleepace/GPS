@@ -1,9 +1,9 @@
 package edu.utah.math5600.GPS;
 
 final public class Matrix {
-    private final int row;             // colurowber of rows
-    private final int col;             // colurowber of colurowcols
-    private final double[][] data;   // 2d array
+    private final int row;
+    private final int col;
+    private final double[][] data;
 
     // Matrix of all zero's
     public Matrix(int row, int col) {
@@ -17,10 +17,6 @@ final public class Matrix {
     	row = data.length;
         col = data[0].length;    
         this.data = data.clone();
-//        this.data = new double[row][col];
-//        for (int i = 0; i < row; i++)
-//            for (int j = 0; j < col; j++)
-//                    this.data[i][j] = data[i][j];
     }
     
     // Multiply two matrices together
@@ -36,7 +32,7 @@ final public class Matrix {
     }
     
     //Print out this matrix
-    public void printMatrix() {
+    public void print() {
     	for (int i = 0; i < data.length; i++) {
 	    	for (int j = 0; j < data[1].length; j++) {
 	    		System.out.print(data[i][j] + " ");
@@ -46,7 +42,7 @@ final public class Matrix {
     }
     
     //Print out 2d array matrix
-    public static void printMatrix(double[][] matrix) {
+    public static void print(double[][] matrix) {
 	    for (int i = 0; i < matrix.length; i++) {
 	    	for (int j = 0; j < matrix[1].length; j++) {
 	    		System.out.print(matrix[i][j] + " ");
@@ -67,10 +63,10 @@ final public class Matrix {
 		Matrix A = new Matrix(a);
 		Matrix B = new Matrix(b);
 		Matrix C = A.multiply(B);
-		A.printMatrix();
+		A.print();
 		System.out.println("*");
-		B.printMatrix();
+		B.print();
 		System.out.println("=");
-		C.printMatrix();
+		C.print();
     }
 }
