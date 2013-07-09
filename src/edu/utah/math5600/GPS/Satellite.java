@@ -26,6 +26,7 @@ public class Satellite {
 		int ns = 0, ew = 0;
 		double psi, lambda;
 		double xv1 = 0.0, xv2 = 0.0, xv3 = 0.0;
+		double xs1 = 0.0, xs2 = 0.0, xs3 = 0.0;
 		
 		//Get vehicle input
 		Scanner vehicleInput;
@@ -104,12 +105,22 @@ public class Satellite {
 		xv[1][0] = xv2;
 		xv[2][0] = xv3;
 		
-
+		
+		//Computes position of first satellite
+		xs1 = (Data.r+Data.altitude[0])*(Data.u1[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v1[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
+		xs2 = (Data.r+Data.altitude[0])*(Data.u2[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v2[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
+		xs3 = (Data.r+Data.altitude[0])*(Data.u3[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v3[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
+		
+		
 		System.out.println("This should be u1 of satelite 15: " + Data.u1[14]);
 		System.out.println("This should be R: " + Data.r);
 		System.out.println("X position of vehicle:" + xv1);
 		System.out.println("Y position of vehicle:" + xv2);
 		System.out.println("Z position of vehicle:" + xv3);
+		System.out.println("X Position of first satellite: " + xs1);
+		System.out.println("Y Position of first satellite: " + xs2);
+		System.out.println("Z Position of first satellite: " + xs3);
+		
 		
 	}
 	
