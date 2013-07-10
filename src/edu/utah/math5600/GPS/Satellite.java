@@ -109,7 +109,13 @@ public class Satellite {
 		double[] xstv = new double[Data.altitude.length];
 		double[] ystv = new double[Data.altitude.length];
 		double[] zstv = new double[Data.altitude.length];
+		double[] xst0 = new double[Data.altitude.length];
+		double[] yst0 = new double[Data.altitude.length];
+		double[] zst0 = new double[Data.altitude.length];
 		double[] t0 = new double[Data.altitude.length];
+		double[] t1 = new double[Data.altitude.length];
+		double[] dft0 = new double[Data.altitude.length];
+		double[] ft0 = new double[Data.altitude.length];
 		//loop through satellites
 		for(int i = 0; i < Data.altitude.length; i++) {
 			//Computes position of each satellite at time tv
@@ -117,10 +123,40 @@ public class Satellite {
 			ystv[i] = (Data.r+Data.altitude[i])*(Data.u2[i]*Math.cos(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.sin(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i]));
 			zstv[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i]));
 		
-			//Find t_0 for each satellite (start of Newton's Method
+			
+			//Find t_0 for each satellite (start of Newton's Method)
 			t0[i] = tv - Math.sqrt( Math.pow((xstv[i] - xv1), 2) + Math.pow((ystv[i] - xv2), 2) + Math.pow((zstv[i] - xv3), 2) );
-		}
 		
+			
+			//Computes position of each satellite at time t_0
+			xst0[i] = (Data.r+Data.altitude[i])*(Data.u1[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]));
+			yst0[i] = (Data.r+Data.altitude[i])*(Data.u2[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]));
+			zst0[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*t0[]/Data.periodicity[i]+Data.phase[i]));
+		
+			
+			//Find f(t_0) and df(t_0) for each satellite 
+			double[][] a = new double[1][3];
+			double[][] b = new double[3][1];
+			Matrix A = new Matrix(a);
+			Matrix B = new Matrix(b);
+			Matrix C = A.multiply(B);
+			Matrix D = A.transpose().multiply(A);
+			a[0][0] = xst0[i]-xv1;
+			a[0][1] = yst0[i]-xv2;
+			a[0][2] = zst0[i]-xv3;
+			b[0][0] = -Data.u1[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]);
+			b[1][0] = -Data.u2[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]);
+			b[2][0] = -Data.u3[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]);
+			
+			dft0[i] = (4*Data.pi*(Data.r+h)/Data.periodicity[i])*(C.getData()[0][0])-2*Data.c*(tv-t0[i])*(tv-t0[i]); 
+	
+ 			ft0[i] = (D.getData()[0][0])-Data.c*Data.c*(tv-t0[i]);
+ 			
+ 			//Fine t_1 for each satellite (First step of Newton's method)
+			
+			t1[i] = t0[i] - ft0/dft0;
+					
+	
 		//Determines if the satellite is above the surface of the earth
 		double u = 0.0, l = 0.0;
 		u = xv1*xstv+xv2*ystv+xv3*zstv;
