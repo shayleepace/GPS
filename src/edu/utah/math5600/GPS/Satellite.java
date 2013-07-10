@@ -26,7 +26,7 @@ public class Satellite {
 		int ns = 0, ew = 0;
 		double psi, lambda;
 		double xv1 = 0.0, xv2 = 0.0, xv3 = 0.0;
-		double xs1 = 0.0, xs2 = 0.0, xs3 = 0.0, ts = 0.0;
+		double xs1tv = 0.0, ys1tv = 0.0, zs1tv = 0.0, ts = 0.0;
 		
 		//Get vehicle input
 		Scanner vehicleInput;
@@ -106,14 +106,14 @@ public class Satellite {
 		xv[2][0] = xv3;
 		
 		
-		//Computes position of first satellite
-		xs1 = (Data.r+Data.altitude[0])*(Data.u1[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v1[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
-		xs2 = (Data.r+Data.altitude[0])*(Data.u2[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v2[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
-		xs3 = (Data.r+Data.altitude[0])*(Data.u3[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v3[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
+		//Computes position of first satellite at time tv
+		xs1tv = (Data.r+Data.altitude[0])*(Data.u1[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v1[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
+		ys1tv = (Data.r+Data.altitude[0])*(Data.u2[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v2[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
+		zs1tv = (Data.r+Data.altitude[0])*(Data.u3[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v3[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
 		
 		//Determines if the satellite is above the surface of the earth
 		double u = 0.0, l = 0.0;
-		u = xv1*xs1+xv2*xs2+xv3*xs3;
+		u = xv1*xs1tv+xv2*ys1tv+xv3*zs1tv;
 		l = xv1*xv1+xv2*xv2+xv3*xv3;
 		while(u > l) {
 			System.out.println("Satellite 1 is above the surface");
@@ -124,12 +124,12 @@ public class Satellite {
 		System.out.println("X position of vehicle:" + xv1);
 		System.out.println("Y position of vehicle:" + xv2);
 		System.out.println("Z position of vehicle:" + xv3);
-		System.out.println("X Position of first satellite: " + xs1);
-		System.out.println("Y Position of first satellite: " + xs2);
-		System.out.println("Z Position of first satellite: " + xs3);
+		System.out.println("X Position of first satellite: " + xs1tv);
+		System.out.println("Y Position of first satellite: " + ys1tv);
+		System.out.println("Z Position of first satellite: " + zs1tv);
 		
 		//Computes ts
-		ts = tv-((xs1-xv1)*(xs1-xv1)+(xs2-xv2)*(xs2-xv2)+(xs3-xv3)*(xs3-xv3))/Data.c;
+		ts = tv-((xs1tv-xv1)*(xs1tv-xv1)+(ys1tv-xv2)*(ys1tv-xv2)+(zs1tv-xv3)*(zs1tv-xv3))/Data.c;
 		System.out.println("ts: " + ts);
 		
 		
