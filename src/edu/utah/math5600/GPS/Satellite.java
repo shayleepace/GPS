@@ -26,7 +26,7 @@ public class Satellite {
 		int ns = 0, ew = 0;
 		double psi, lambda;
 		double xv1 = 0.0, xv2 = 0.0, xv3 = 0.0;
-		double xs1tv = 0.0, ys1tv = 0.0, zs1tv = 0.0, ts = 0.0;
+		double ts = 0.0;
 		
 		//Get vehicle input
 		Scanner vehicleInput;
@@ -106,14 +106,24 @@ public class Satellite {
 		xv[2][0] = xv3;
 		
 		
-		//Computes position of first satellite at time tv
-		xs1tv = (Data.r+Data.altitude[0])*(Data.u1[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v1[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
-		ys1tv = (Data.r+Data.altitude[0])*(Data.u2[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v2[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
-		zs1tv = (Data.r+Data.altitude[0])*(Data.u3[0]*Math.cos(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0])+Data.v3[0]*Math.sin(2*Data.pi*tv/Data.periodicity[0]+Data.phase[0]));
+		double[] xstv = new double[Data.altitude.length];
+		double[] ystv = new double[Data.altitude.length];
+		double[] zstv = new double[Data.altitude.length];
+		double[] t0 = new double[Data.altitude.length];
+		//loop through satellites
+		for(int i = 0; i < Data.altitude.length; i++) {
+			//Computes position of each satellite at time tv
+			xstv[i] = (Data.r+Data.altitude[i])*(Data.u1[i]*Math.cos(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.sin(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i]));
+			ystv[i] = (Data.r+Data.altitude[i])*(Data.u2[i]*Math.cos(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.sin(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i]));
+			zstv[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*tv/Data.periodicity[i]+Data.phase[i]));
+		
+			//Find t_0 for each satellite (start of Newton's Method
+			t0[i] = tv - Math.sqrt( Math.pow((xstv[i] - xv1), 2) + Math.pow((ystv[i] - xv2), 2) + Math.pow((zstv[i] - xv3), 2) );
+		}
 		
 		//Determines if the satellite is above the surface of the earth
 		double u = 0.0, l = 0.0;
-		u = xv1*xs1tv+xv2*ys1tv+xv3*zs1tv;
+		u = xv1*xstv+xv2*ystv+xv3*zstv;
 		l = xv1*xv1+xv2*xv2+xv3*xv3;
 		while(u > l) {
 			System.out.println("Satellite 1 is above the surface");
@@ -124,12 +134,12 @@ public class Satellite {
 		System.out.println("X position of vehicle:" + xv1);
 		System.out.println("Y position of vehicle:" + xv2);
 		System.out.println("Z position of vehicle:" + xv3);
-		System.out.println("X Position of first satellite: " + xs1tv);
-		System.out.println("Y Position of first satellite: " + ys1tv);
-		System.out.println("Z Position of first satellite: " + zs1tv);
+		System.out.println("X Position of first satellite: " + xstv);
+		System.out.println("Y Position of first satellite: " + ystv);
+		System.out.println("Z Position of first satellite: " + zstv);
 		
 		//Computes ts
-		ts = tv-((xs1tv-xv1)*(xs1tv-xv1)+(ys1tv-xv2)*(ys1tv-xv2)+(zs1tv-xv3)*(zs1tv-xv3))/Data.c;
+		ts = tv-((xstv-xv1)*(xstv-xv1)+(ystv-xv2)*(ystv-xv2)+(zstv-xv3)*(zstv-xv3))/Data.c;
 		System.out.println("ts: " + ts);
 		
 		
