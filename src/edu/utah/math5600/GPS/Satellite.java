@@ -116,6 +116,16 @@ public class Satellite {
 		double[] t1 = new double[Data.altitude.length];
 		double[] dft0 = new double[Data.altitude.length];
 		double[] ft0 = new double[Data.altitude.length];
+		double[] xst1 = new double[Data.altitude.length];
+		double[] yst1 = new double[Data.altitude.length];
+		double[] zst1 = new double[Data.altitude.length];
+		double[] dft1 = new double[Data.altitude.length];
+		double[] ft1 = new double[Data.altitude.length];
+		double[] t2 = new double[Data.altitude.length];
+		double[] xsts = new double[Data.altitude.length];
+		double[] ysts = new double[Data.altitude.length];
+		double[] zsts = new double[Data.altitude.length];
+		
 		//loop through satellites
 		for(int i = 0; i < Data.altitude.length; i++) {
 			//Computes position of each satellite at time tv
@@ -125,22 +135,17 @@ public class Satellite {
 		
 			
 			//Find t_0 for each satellite (start of Newton's Method)
-			t0[i] = tv - Math.sqrt( Math.pow((xstv[i] - xv1), 2) + Math.pow((ystv[i] - xv2), 2) + Math.pow((zstv[i] - xv3), 2) );
-		
+			t0[i] = tv - (Math.sqrt( Math.pow((xstv[i] - xv1), 2) + Math.pow((ystv[i] - xv2), 2) + Math.pow((zstv[i] - xv3), 2))/Data.c) ;
 			
 			//Computes position of each satellite at time t_0
 			xst0[i] = (Data.r+Data.altitude[i])*(Data.u1[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]));
 			yst0[i] = (Data.r+Data.altitude[i])*(Data.u2[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]));
-			zst0[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*t0[]/Data.periodicity[i]+Data.phase[i]));
+			zst0[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]));
 		
 			
 			//Find f(t_0) and df(t_0) for each satellite 
 			double[][] a = new double[1][3];
 			double[][] b = new double[3][1];
-			Matrix A = new Matrix(a);
-			Matrix B = new Matrix(b);
-			Matrix C = A.multiply(B);
-			Matrix D = A.transpose().multiply(A);
 			a[0][0] = xst0[i]-xv1;
 			a[0][1] = yst0[i]-xv2;
 			a[0][2] = zst0[i]-xv3;
@@ -148,36 +153,82 @@ public class Satellite {
 			b[1][0] = -Data.u2[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]);
 			b[2][0] = -Data.u3[i]*Math.sin(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.cos(2*Data.pi*t0[i]/Data.periodicity[i]+Data.phase[i]);
 			
-			dft0[i] = (4*Data.pi*(Data.r+h)/Data.periodicity[i])*(C.getData()[0][0])-2*Data.c*(tv-t0[i])*(tv-t0[i]); 
-	
- 			ft0[i] = (D.getData()[0][0])-Data.c*Data.c*(tv-t0[i]);
- 			
- 			//Fine t_1 for each satellite (First step of Newton's method)
+			Matrix A = new Matrix(a);
+			Matrix B = new Matrix(b);
+			Matrix C = A.multiply(B);
+			Matrix D = A.transpose().multiply(A);
 			
-			t1[i] = t0[i] - ft0/dft0;
-					
-	
-		//Determines if the satellite is above the surface of the earth
-		double u = 0.0, l = 0.0;
-		u = xv1*xstv+xv2*ystv+xv3*zstv;
-		l = xv1*xv1+xv2*xv2+xv3*xv3;
-		while(u > l) {
-			System.out.println("Satellite 1 is above the surface");
-		}
+			//get dft0 and ft0 for each satellite
+			dft0[i] = (4*Data.pi*(Data.r+h)/Data.periodicity[i])*(C.getData()[0][0])+2*Data.c*Data.c*(tv-t0[i]); 
+ 			ft0[i] = (D.getData()[0][0])-(Data.c*Data.c*(tv-t0[i])*(tv-t0[i]));
+ 			
+ 			//Find t_1 for each satellite (First step of Newton's method)
+			t1[i] = t0[i] - ft0[i]/dft0[i];
+			
+			//Computes position of each satellite at time t_1
+			xst1[i] = (Data.r+Data.altitude[i])*(Data.u1[i]*Math.cos(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.sin(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i]));
+			yst1[i] = (Data.r+Data.altitude[i])*(Data.u2[i]*Math.cos(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.sin(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i]));
+			zst1[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i]));
+			
+			
+			//Find f(t_1) and df(t_1) for each satellite 
+			double[][] e = new double[1][3];
+			double[][] f = new double[3][1];
+			e[0][0] = xst0[i]-xv1;
+			e[0][1] = yst0[i]-xv2;
+			e[0][2] = zst0[i]-xv3;
+			f[0][0] = -Data.u1[i]*Math.sin(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.cos(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i]);
+			f[1][0] = -Data.u2[i]*Math.sin(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.cos(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i]);
+			f[2][0] = -Data.u3[i]*Math.sin(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.cos(2*Data.pi*t1[i]/Data.periodicity[i]+Data.phase[i]);
+			
+			Matrix E = new Matrix(e);
+			Matrix F = new Matrix(f);
+			Matrix G = E.multiply(F);
+			Matrix H = E.transpose().multiply(E);
+			
+			//Get dft1 and ft1 for each satellite
+			dft1[i] = (4*Data.pi*(Data.r+h)/Data.periodicity[i])*(G.getData()[0][0])+2*Data.c*Data.c*(tv-t1[i]);
+ 			ft1[i] = (H.getData()[0][0])-Data.c*Data.c*(tv-t1[i])*(tv-t1[i]);
+ 			
+ 			//Find t_2 for each satellite (First step of Newton's method)-- this is ts and needs to be printed out
+			t2[i] = t1[i] - ft1[i]/dft1[i];
 		
-		System.out.println("This should be u1 of satelite 15: " + Data.u1[14]);
-		System.out.println("This should be R: " + Data.r);
-		System.out.println("X position of vehicle:" + xv1);
-		System.out.println("Y position of vehicle:" + xv2);
-		System.out.println("Z position of vehicle:" + xv3);
-		System.out.println("X Position of first satellite: " + xstv);
-		System.out.println("Y Position of first satellite: " + ystv);
-		System.out.println("Z Position of first satellite: " + zstv);
+			//Computes position of each satellite at time t_2 (This is xs(ts) and needs to be printed out)
+			xst1[i] = (Data.r+Data.altitude[i])*(Data.u1[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
+			yst1[i] = (Data.r+Data.altitude[i])*(Data.u2[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
+			zst1[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
 		
-		//Computes ts
-		ts = tv-((xstv-xv1)*(xstv-xv1)+(ystv-xv2)*(ystv-xv2)+(zstv-xv3)*(zstv-xv3))/Data.c;
-		System.out.println("ts: " + ts);
+			//Determines if the satellite is above the surface of the earth
+			double u = 0.0, l = 0.0;
+			u = xv1*xstv[i]+xv2*ystv[i]+xv3*zstv[i];
+			l = xv1*xv1+xv2*xv2+xv3*xv3;
+			if(u > l) {
+				
+				System.out.println("t2 for satellite " + (i+1) + " is: " + t2[i]);
+				System.out.println("xst1 for satellite " + (i+1) + " is: " + xst1[i]);
+				System.out.println("yst1 for satellite " + (i+1) + " is: " + yst1[i]);
+				System.out.println("zst1 for satellite " + (i+1) + " is: " + zst1[i]);
 		
+				
+			
+			}
+				
+		
+		} //End of For loop
+		
+//		System.out.println("This should be u1 of satelite 15: " + Data.u1[14]);
+//		System.out.println("This should be R: " + Data.r);
+//		System.out.println("X position of vehicle:" + xv1);
+//		System.out.println("Y position of vehicle:" + xv2);
+//		System.out.println("Z position of vehicle:" + xv3);
+//		System.out.println("X Position of first satellite: " + xstv);
+//		System.out.println("Y Position of first satellite: " + ystv);
+//		System.out.println("Z Position of first satellite: " + zstv);
+//		
+//		//Computes ts
+//		ts = tv-((xstv-xv1)*(xstv-xv1)+(ystv-xv2)*(ystv-xv2)+(zstv-xv3)*(zstv-xv3))/Data.c;
+//		System.out.println("ts: " + ts);
+//		
 		
 	}
 	
