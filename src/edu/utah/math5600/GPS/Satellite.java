@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import Jama.Matrix;
+
 
 public class Satellite {
 
@@ -155,12 +157,12 @@ public class Satellite {
 			
 			Matrix A = new Matrix(a);
 			Matrix B = new Matrix(b);
-			Matrix C = A.multiply(B);
-			Matrix D = A.transpose().multiply(A);
+			Matrix C = A.times(B);
+			Matrix D = A.transpose().times(A);
 			
 			//get dft0 and ft0 for each satellite
-			dft0[i] = (4*Data.pi*(Data.r+h)/Data.periodicity[i])*(C.getData()[0][0])+2*Data.c*Data.c*(tv-t0[i]); 
- 			ft0[i] = (D.getData()[0][0])-(Data.c*Data.c*(tv-t0[i])*(tv-t0[i]));
+			dft0[i] = (4*Data.pi*(Data.r+h)/Data.periodicity[i])*(C.getArrayCopy()[0][0])+2*Data.c*Data.c*(tv-t0[i]); 
+ 			ft0[i] = (D.getArrayCopy()[0][0])-(Data.c*Data.c*(tv-t0[i])*(tv-t0[i]));
  			
  			//Find t_1 for each satellite (First step of Newton's method)
 			t1[i] = t0[i] - ft0[i]/dft0[i];
@@ -183,12 +185,12 @@ public class Satellite {
 			
 			Matrix E = new Matrix(e);
 			Matrix F = new Matrix(f);
-			Matrix G = E.multiply(F);
-			Matrix H = E.transpose().multiply(E);
+			Matrix G = E.times(F);
+			Matrix H = E.transpose().times(E);
 			
 			//Get dft1 and ft1 for each satellite
-			dft1[i] = (4*Data.pi*(Data.r+h)/Data.periodicity[i])*(G.getData()[0][0])+2*Data.c*Data.c*(tv-t1[i]);
- 			ft1[i] = (H.getData()[0][0])-Data.c*Data.c*(tv-t1[i])*(tv-t1[i]);
+			dft1[i] = (4*Data.pi*(Data.r+h)/Data.periodicity[i])*(G.getArrayCopy()[0][0])+2*Data.c*Data.c*(tv-t1[i]);
+ 			ft1[i] = (H.getArrayCopy()[0][0])-Data.c*Data.c*(tv-t1[i])*(tv-t1[i]);
  			
  			//Find t_2 for each satellite (First step of Newton's method)-- this is ts and needs to be printed out
 			t2[i] = t1[i] - ft1[i]/dft1[i];
