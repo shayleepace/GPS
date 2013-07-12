@@ -1,7 +1,11 @@
 package edu.utah.math5600.GPS;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Scanner;
 
 import Jama.Matrix;
@@ -16,14 +20,34 @@ public class Satellite {
 	
 	public static void main(String[] args) {
 		//Get Data from data.dat
-		Data.getData();
+		Data.getData();		
+		
+		File dat = new File("satellite.dat");
+		File log = new File("satellite.log");
+		
+		//create dat file if it doesn't exist
+		if(!dat.exists()) {
+			try {
+				dat.createNewFile();
+			} catch(IOException event) {
+				event.printStackTrace();
+			}
+		}
+		//create log file if it doesn't exist
+		if(!log.exists()) {
+			try {
+				log.createNewFile();
+			} catch(IOException event) {
+				event.printStackTrace();
+			}
+		}
 		
 		//Matrices
 		r3 = new double[3][3];
 		x = new double[3][1];
 		xv = new double[3][1];
 		
-		//Variables for input data
+		//Variables for vehicle input data
 		double tv = 0.0, ad = 0.0, am = 0.0, as = 0.0, bd = 0.0, bm = 0.0, bs = 0.0, h = 0.0;
 		int ns = 0, ew = 0;
 		double psi, lambda;
@@ -36,7 +60,7 @@ public class Satellite {
 			vehicleInput = new Scanner(new File("vehicle.dat"));
 			
 			//While input has a another line to read
-			while(vehicleInput.hasNextLine()) {
+			if(vehicleInput.hasNextLine()) {
 				String data[] = vehicleInput.nextLine().split(" ");
 				
 				tv = Double.parseDouble(data[0]);
@@ -196,42 +220,78 @@ public class Satellite {
 			t2[i] = t1[i] - ft1[i]/dft1[i];
 		
 			//Computes position of each satellite at time t_2 (This is xs(ts) and needs to be printed out)
-			xst1[i] = (Data.r+Data.altitude[i])*(Data.u1[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
-			yst1[i] = (Data.r+Data.altitude[i])*(Data.u2[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
-			zst1[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
+			xsts[i] = (Data.r+Data.altitude[i])*(Data.u1[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v1[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
+			ysts[i] = (Data.r+Data.altitude[i])*(Data.u2[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v2[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
+			zsts[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
 		
-			//Determines if the satellite is above the surface of the earth
-			double u = 0.0, l = 0.0;
-			u = xv1*xstv[i]+xv2*ystv[i]+xv3*zstv[i];
-			l = xv1*xv1+xv2*xv2+xv3*xv3;
-			if(u > l) {
-				
-				System.out.println("t2 for satellite " + (i+1) + " is: " + t2[i]);
-				System.out.println("xst1 for satellite " + (i+1) + " is: " + xst1[i]);
-				System.out.println("yst1 for satellite " + (i+1) + " is: " + yst1[i]);
-				System.out.println("zst1 for satellite " + (i+1) + " is: " + zst1[i]);
-		
-				
+			//Prints out results for the satellites	
+			System.out.println("ts for satellite " + (i+1) + " is: " + t2[i]);
+			System.out.println("xsts for satellite " + (i+1) + " is: " + xsts[i]);
+			System.out.println("ysts for satellite " + (i+1) + " is: " + ysts[i]);
+			System.out.println("zsts for satellite " + (i+1) + " is: " + zsts[i]);
 			
+			
+			
+			
+			
+			try {
+				PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(dat, true)));
+				//Output- ts[i], xsts, ysts, zsts, xv1, xv2, xv3 to satellite.dat (receiver)
+				if(i == 0) {
+					out.println(xv1);
+					out.println(xv2);
+					out.println(xv3);
+				}
+				
+				out.println(t2[i] + " " + xsts[i] + " " + ysts[i] + " " + zsts[i]);
+				out.close();
+			} catch (FileNotFoundException event) {
+				event.printStackTrace();
 			}
+			
+			try {
+				PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(log, true)));
+				//Output to satellite.log: All inputs,
+				if(i == 0){
+					out.println("Position of vehicle = " + "(" + xv1 + ", " + xv2 + ", " + xv3 + ")");
+					out.println("pi = " + Data.pi);
+					out.println("c = " + Data.c);
+					out.println("r = " + Data.r);
+					out.println("s = " + Data.s);
+				}
+				out.println("u1[" + i + "] = " + Data.u1[i]);
+				out.println("u2[" + i + "] = " + Data.u2[i]);
+				out.println("u3[" + i + "] = " + Data.u3[i]);
+				out.println("v1[" + i + "] = " + Data.v1[i]);
+				out.println("v2[" + i + "] = " + Data.v2[i]);
+				out.println("v3[" + i + "] = " + Data.v3[i]);
+				out.println("Periodicity of satellite[" + i + "] = " + Data.periodicity[i]);
+				out.println("Altitude of satellite[" + i + "] = " + Data.altitude[i]);
+				out.println("Phase of satellite[" + i + "] = " + Data.phase[i]);
+				out.println("Time vehicle receives signal =" + tv);
+				out.println("Latitude =" + ad + "\u00B0" + am + "'" + as + "\"");
+				out.println("NS =" + ns);
+				out.println("Longitude =" + bd + "\u00B0" + bm + "'" + bs + "\"");
+				out.println("EW =" + ew);
+				out.println("h of vehicle = " +  h);
+				out.println("Time satellite" + " " + i + " " + "sends a signal" + "=" + t2[i]);
+				out.println("Position of satellite" + " " + i +  " " + "=" + "(" + xsts[i] + "," + ysts[i] + "," + zsts[i] + ")");
+				out.close();
+				
+			} catch (FileNotFoundException event) {
+				event.printStackTrace();
+			}
+			
+			
+			
+			
 				
 		
 		} //End of For loop
 		
-//		System.out.println("This should be u1 of satelite 15: " + Data.u1[14]);
-//		System.out.println("This should be R: " + Data.r);
-//		System.out.println("X position of vehicle:" + xv1);
-//		System.out.println("Y position of vehicle:" + xv2);
-//		System.out.println("Z position of vehicle:" + xv3);
-//		System.out.println("X Position of first satellite: " + xstv);
-//		System.out.println("Y Position of first satellite: " + ystv);
-//		System.out.println("Z Position of first satellite: " + zstv);
 //		
-//		//Computes ts
-//		ts = tv-((xstv-xv1)*(xstv-xv1)+(ystv-xv2)*(ystv-xv2)+(zstv-xv3)*(zstv-xv3))/Data.c;
-//		System.out.println("ts: " + ts);
 //		
-		
+
 	}
 	
 
