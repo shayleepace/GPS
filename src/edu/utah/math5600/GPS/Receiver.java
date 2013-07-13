@@ -1,7 +1,14 @@
 package edu.utah.math5600.GPS;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import Jama.LUDecomposition;
@@ -9,10 +16,20 @@ import Jama.Matrix;
 
 public class Receiver {
 
-	
 	public static void main(String[] args) {
 		//Get Data from data.dat
 		Data.getData();
+		
+		File log = new File("receiver.log");
+		
+		//create log file if it doesn't exist
+		if(!log.exists()) {
+			try {
+				log.createNewFile();
+			} catch(IOException event) {
+				event.printStackTrace();
+			}
+		}
 		
 		//Variables for satellite input data
 		double xv1 = 0.0, xv2 = 0.0, xv3 = 0.0;
@@ -22,36 +39,32 @@ public class Receiver {
 		double[] zsts = new double[Data.altitude.length];
 		
 		int[] j = new int[Data.altitude.length];
+		int[] k = new int[24];
+		int count = 0;
 		
-		for(int i = 0; i < Data.altitude.length; i++) {
-			
-			//Get satellite input
-			Scanner input;
-			try {
-				input = new Scanner(new File("satellite.dat"));
+		//Get satellite input
+		BufferedReader satelliteInput = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			while(!satelliteInput.readLine().isEmpty()) {
+				String data[] = satelliteInput.readLine().trim().split(" ");
 				
-				//While input has a another line to read
-				if(input.hasNextLine()) {
-					xv1 = Double.parseDouble(input.nextLine());
-					xv2 = Double.parseDouble(input.nextLine());
-					xv3 = Double.parseDouble(input.nextLine());
-					
-					String data[] = input.nextLine().split(" ");
-					
-					t2[i] = Double.parseDouble(data[0]);
-					xsts[i] = Double.parseDouble(data[1]);
-					ysts[i] = Double.parseDouble(data[2]);
-					zsts[i] = Double.parseDouble(data[3]);
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				k[count] = Integer.parseInt(data[0]);
+				t2[count] = Double.parseDouble(data[1]);
+				xsts[count] = Double.parseDouble(data[2]);
+				ysts[count] = Double.parseDouble(data[3]);
+				zsts[count] = Double.parseDouble(data[4]);
+				count++;
 			}
-			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		for(int i = 0; i < Data.altitude.length; i++) {			
 			//Determines if the satellite is above the surface of the earth
 			double u = 0.0, l = 0.0;
 			u = xv1*xsts[i]+xv2*ysts[i]+xv3*zsts[i];
 			l = xv1*xv1+xv2*xv2+xv3*xv3;
-			int count = 0;
+			count = 0;
 			if(u > l) {
 				//good satellite
 				j[count] = i;
@@ -66,7 +79,7 @@ public class Receiver {
 
 			
 		//Jacobian of x
-			//Matrix A=F(x) Matrix B=Jacobian
+		//Matrix A=F(x) Matrix B=Jacobian
 		double[] a = new double[3];
 		double[][] b = new double[3][3];
 		double[] x = new double[3];
@@ -101,11 +114,29 @@ public class Receiver {
 		y0 = x[1];
 		z0 = x[2];
 		
-//		X.print(1, 1);
-		System.out.println("x: " + x0 + " y: " + y0 + " z: " + z0);
+//		Print out vehicle position
+		//System.out.println(ad + " " + am + " " + as + " " + ns + " " + bd + " " + bm + " " + bs + " " + ew + " " + h);
+		
+		//Log files to receiver.log
+		try {
+			PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(log, true)));
+			//Output to receiver.log: All inputs,
+			out.println("Receiver log, Shaylee Pace and Mitch Norton data.dat:");
+			out.println("pi = " + Data.pi);
+			out.println("c = " + Data.c);
+			out.println("r = " + Data.r);
+			out.println("s = " + Data.s);
+			out.println(" end data.dat\n");
+			
+			//out.println(ad + " " + am + " " + as + " " + ns + " " + bd + " " + bm + " " + bs + " " + ew + " " + h);
+			
+			out.close();
+			
+		} catch (FileNotFoundException event) {
+			event.printStackTrace();
+		}
 	}
-		
-		
+	
 		
 		
 		
@@ -117,15 +148,7 @@ public class Receiver {
 //		Long = Data.pi + Math.atan(yk/xk); // if x<0
 //		Long = 2*Data.pi + Math.atan(yk/xk); // if x>0 y<0
 		
-		
-		
-		
-		
-		
-	
-		
-		
-		
+
 	}
 	
 	 private static final double EPSILON = 1e-10;
@@ -172,6 +195,4 @@ public class Receiver {
 	        }
 	        return x;
 	    }
-
-
 }

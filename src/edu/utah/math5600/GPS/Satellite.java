@@ -1,11 +1,14 @@
 package edu.utah.math5600.GPS;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import Jama.Matrix;
@@ -22,17 +25,8 @@ public class Satellite {
 		//Get Data from data.dat
 		Data.getData();		
 		
-		File dat = new File("satellite.dat");
 		File log = new File("satellite.log");
 		
-		//create dat file if it doesn't exist
-		if(!dat.exists()) {
-			try {
-				dat.createNewFile();
-			} catch(IOException event) {
-				event.printStackTrace();
-			}
-		}
 		//create log file if it doesn't exist
 		if(!log.exists()) {
 			try {
@@ -55,34 +49,39 @@ public class Satellite {
 		double ts = 0.0;
 		
 		//Get vehicle input
-		Scanner vehicleInput;
+		BufferedReader vehicleInput = new BufferedReader(new InputStreamReader(System.in));
 		try {
-			vehicleInput = new Scanner(new File("vehicle.dat"));
+			String data[] = vehicleInput.readLine().trim().split(" ");
 			
-			//While input has a another line to read
-			if(vehicleInput.hasNextLine()) {
-				String data[] = vehicleInput.nextLine().split(" ");
-				
-				tv = Double.parseDouble(data[0]);
-				ad = Double.parseDouble(data[1]);
-				am = Double.parseDouble(data[2]);
-				as = Double.parseDouble(data[3]);
-				ns = Integer.parseInt(data[4]);
-				bd = Double.parseDouble(data[5]);
-				bm = Double.parseDouble(data[6]);
-				bs = Double.parseDouble(data[7]);
-				ew = Integer.parseInt(data[8]);
-				h = Double.parseDouble(data[9]);
-			}
-			
-//			System.out.println("This should be h: " + h);
-//			
-//			System.out.println("This should be bd: " + bd);
+			tv = Double.parseDouble(data[0]);
+			ad = Double.parseDouble(data[1]);
+			am = Double.parseDouble(data[2]);
+			as = Double.parseDouble(data[3]);
+			ns = Integer.parseInt(data[4]);
+			bd = Double.parseDouble(data[5]);
+			bm = Double.parseDouble(data[6]);
+			bs = Double.parseDouble(data[7]);
+			ew = Integer.parseInt(data[8]);
+			h = Double.parseDouble(data[9]);
 		
-		
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		// Testing vehicle input
+		// tv = 102123.0;
+		// ad = 40;
+		// am =  45; 
+		// as = 55.0;
+		// ns =  1; 
+		// bd = 111; 
+		// bm = 50; 
+		// bs = 58.0; 
+		// ew = -1; 
+		// h = 1372.0;
+		
+//		System.out.println("This should be h: " + h);
+//		System.out.println("This should be bd: " + bd);
 		
 		psi = getPsi(ns, ad, am, as);
 		lambda = getLambda(ew, bd, bm, bs);
@@ -225,40 +224,35 @@ public class Satellite {
 			zsts[i] = (Data.r+Data.altitude[i])*(Data.u3[i]*Math.cos(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i])+Data.v3[i]*Math.sin(2*Data.pi*t2[i]/Data.periodicity[i]+Data.phase[i]));
 		
 			//Prints out results for the satellites	
-			System.out.println("ts for satellite " + (i+1) + " is: " + t2[i]);
-			System.out.println("xsts for satellite " + (i+1) + " is: " + xsts[i]);
-			System.out.println("ysts for satellite " + (i+1) + " is: " + ysts[i]);
-			System.out.println("zsts for satellite " + (i+1) + " is: " + zsts[i]);
+			// System.out.println("ts for satellite " + (i+1) + " is: " + t2[i]);
+			// System.out.println("xsts for satellite " + (i+1) + " is: " + xsts[i]);
+			// System.out.println("ysts for satellite " + (i+1) + " is: " + ysts[i]);
+			// System.out.println("zsts for satellite " + (i+1) + " is: " + zsts[i]);
 			
 			
-			
-			
-			
-			try {
-				PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(dat, true)));
-				//Output- ts[i], xsts, ysts, zsts, xv1, xv2, xv3 to satellite.dat (receiver)
-				if(i == 0) {
-					out.println(xv1);
-					out.println(xv2);
-					out.println(xv3);
-				}
-				
-				out.println(t2[i] + " " + xsts[i] + " " + ysts[i] + " " + zsts[i]);
-				out.close();
-			} catch (FileNotFoundException event) {
-				event.printStackTrace();
+			//Determines if the satellite is above the surface of the earth
+			double u = 0.0, l = 0.0;
+			u = xv1*xsts[i]+xv2*ysts[i]+xv3*zsts[i];
+			l = xv1*xv1+xv2*xv2+xv3*xv3;
+			int count = 0;
+			if(u > l) {
+				//Output- is, ts, and xs to receiver
+				System.out.println(i + " " + t2[i] + " " + xsts[i] + " " + ysts[i] + " " + zsts[i]);
 			}
 			
-			try {
-				PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(log, true)));
-				//Output to satellite.log: All inputs,
-				if(i == 0){
-					out.println("Position of vehicle = " + "(" + xv1 + ", " + xv2 + ", " + xv3 + ")");
-					out.println("pi = " + Data.pi);
-					out.println("c = " + Data.c);
-					out.println("r = " + Data.r);
-					out.println("s = " + Data.s);
-				}
+		
+		} //End of For loop
+		
+		try {
+			PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(log, true)));
+			//Output to satellite.log: All inputs,
+			out.println("Satellite log, Shaylee Pace and Mitch Norton data.dat:");
+			out.println("pi = " + Data.pi);
+			out.println("c = " + Data.c);
+			out.println("r = " + Data.r);
+			out.println("s = " + Data.s);
+			
+			for(int i = 0; i < Data.altitude.length; i++) {
 				out.println("u1[" + i + "] = " + Data.u1[i]);
 				out.println("u2[" + i + "] = " + Data.u2[i]);
 				out.println("u3[" + i + "] = " + Data.u3[i]);
@@ -268,39 +262,70 @@ public class Satellite {
 				out.println("Periodicity of satellite[" + i + "] = " + Data.periodicity[i]);
 				out.println("Altitude of satellite[" + i + "] = " + Data.altitude[i]);
 				out.println("Phase of satellite[" + i + "] = " + Data.phase[i]);
-				out.println("Time vehicle receives signal =" + tv);
-				out.println("Latitude =" + ad + "\u00B0" + am + "'" + as + "\"");
-				out.println("NS =" + ns);
-				out.println("Longitude =" + bd + "\u00B0" + bm + "'" + bs + "\"");
-				out.println("EW =" + ew);
-				out.println("h of vehicle = " +  h);
-				out.println("Time satellite" + " " + i + " " + "sends a signal" + "=" + t2[i]);
-				out.println("Position of satellite" + " " + i +  " " + "=" + "(" + xsts[i] + "," + ysts[i] + "," + zsts[i] + ")");
-				out.close();
-				
-			} catch (FileNotFoundException event) {
-				event.printStackTrace();
 			}
 			
+			out.println(" end data.dat\n");
 			
+			for(int i = 0; i < Data.altitude.length; i++) {
+				out.println(i + " " + t2[i] + " " + xsts[i] + " " + ysts[i] + " " + zsts[i]);
+			}
+			out.close();
 			
-			
-				
-		
-		} //End of For loop
-		
-//		
-//		
-
+		} catch (FileNotFoundException event) {
+			event.printStackTrace();
+		}
 	}
-	
 
-	
 	public static double getPsi(double ns, double ad, double am, double as) {
 		return 2 * Data.pi * ns * ( (ad/360) + (am/21600) + (as/1296000) );
 	}
 	
 	public static double getLambda(double ew, double bd, double bm, double bs) {
 		return 2 * Data.pi * ew * ( (bd/360) + (bm/21600) + (bs/1296000) );
+	}
+}
+
+//get data from data.dat
+class Data {
+	public static double pi, c, r, s;
+	public static double[] u1, u2, u3, v1, v2, v3, periodicity, altitude, phase;
+	
+	public static void getData() {
+		u1 = new double[24]; u2 = new double[24]; u3 = new double[24];
+		v1 = new double[24]; v2 = new double[24]; v3 = new double[24];
+		periodicity = new double[24]; altitude = new double[24]; phase = new double[24];
+		
+		Scanner dataInput;
+		try {
+			dataInput = new Scanner(new File("data.dat"));
+			ArrayList<Double> dataList = new ArrayList<Double>();
+			while(dataInput.hasNextLine()) {
+				String dataLine[] = dataInput.nextLine().trim().split(" ");
+				String data = dataLine[0].trim();
+				dataList.add(Double.parseDouble(data));
+			}
+			
+			pi = dataList.get(0);
+			c = dataList.get(1);
+			r = dataList.get(2);
+			s = dataList.get(3);
+			
+			int j = 0;
+			for(int i = 0; i < 24; i++) {
+				u1[i] = dataList.get(4+j);
+				u2[i] = dataList.get(5+j);
+				u3[i] = dataList.get(6+j);
+				v1[i] = dataList.get(7+j);
+				v2[i] = dataList.get(8+j);
+				v3[i] = dataList.get(9+j);
+				periodicity[i] = dataList.get(10+j);
+				altitude[i] = dataList.get(11+j);
+				phase[i] = dataList.get(12+j);
+				j += 9;
+			}
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 }
